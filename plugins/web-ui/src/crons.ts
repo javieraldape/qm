@@ -266,6 +266,7 @@ function drawCronsPage(): void {
   let emptyAction: { label: string; onClick: () => void } | undefined;
   if (cronsNotice) empty = cronsNotice;
   else if (cronsLoading && cronList.length === 0 && visibleCronList.length === 0) empty = "Loading crons…";
+  else if (cronsSearch.trim()) empty = "No crons match your search.";
   else if (cronsScope) empty = "No crons in this context.";
   else {
     emptyHint = "Ask QM to run something on a schedule.";

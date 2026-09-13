@@ -14016,6 +14016,11 @@
           f.append(l, control);
           return f;
         };
+        const dirMembers = async (q) => {
+          const r = await api("GET", "/api/directory?q=" + encodeURIComponent(q));
+          if (!r.ok) throw new Error(r.data?.message || "directory lookup failed (" + r.status + ")");
+          return r.data?.members || [];
+        };
         const pInput = document.createElement("input");
         pInput.type = "text";
         pInput.placeholder = "email or Slack user id (e.g. dana@example.com)";
@@ -14029,18 +14034,34 @@
         grantBtn.type = "button";
         grantBtn.textContent = "Grant";
         grantBtn.onclick = async () => {
-          const principalId = pInput.value.trim();
-          if (!principalId) return setStatus("st-users", "Email or Slack user id required.", "err");
-          const r = await api("POST", "/api/grants", { principalId, role: "org_admin", scopeId: "org:" + orgId });
-          if (r.ok) {
-            pInput.value = "";
-            renderData();
-          } else
-            setStatus(
-              "st-users",
-              r.status === 403 ? "Only an org admin may grant." : r.data?.message || "Grant failed.",
-              "err",
-            );
+          const v = pInput.value.trim();
+          if (!v) return setStatus("st-users", "Email or Slack user id required.", "err");
+          grantBtn.disabled = true;
+          try {
+            const members = await dirMembers(v);
+            if (members.length > 1)
+              return setStatus("st-users", "Matches several people. Pick one from the suggestions.", "err");
+            if (!members[0]) return setStatus("st-users", "No one matched. Pick someone from the suggestions.", "err");
+            const r = await api("POST", "/api/grants", {
+              principalId: members[0].principalId,
+              role: "org_admin",
+              scopeId: "org:" + orgId,
+            });
+            if (r.ok) {
+              pInput.value = "";
+              grantDatalist.textContent = "";
+              renderData();
+            } else
+              setStatus(
+                "st-users",
+                r.status === 403 ? "Only an org admin may grant." : r.data?.message || "Grant failed.",
+                "err",
+              );
+          } catch (e) {
+            setStatus("st-users", "Couldn't resolve that (" + (e?.message || "directory lookup failed") + ").", "err");
+          } finally {
+            grantBtn.disabled = false;
+          }
         };
         form.append(mkField("grow", "Person", pInput), grantBtn, grantDatalist);
         const formCard = dataCard(
@@ -14072,11 +14093,6 @@
         let impTimer = null,
           impSeq = 0;
 
-        const dirMembers = async (q) => {
-          const r = await api("GET", "/api/directory?q=" + encodeURIComponent(q));
-          if (!r.ok) throw new Error(r.data?.message || "directory lookup failed (" + r.status + ")");
-          return r.data?.members || [];
-        };
         let grantTimer = null,
           grantSeq = 0;
         pInput.addEventListener("input", () => {

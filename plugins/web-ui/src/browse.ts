@@ -18,6 +18,7 @@ interface Destination {
 const BROWSE_COLUMNS = 2;
 
 const browseState = { sel: 0 };
+let browseHost: HTMLElement | null = null;
 
 function destinations(): Destination[] {
   const to = (view: View, glyph: IconNode, label: string, blurb: string): Destination => ({
@@ -54,11 +55,13 @@ export function renderBrowse(): void {
   if (appState.currentView !== "browse" || !appState.mainEl) return;
   const list = destinations();
   if (browseState.sel >= list.length) browseState.sel = 0;
-  const host = document.createElement("div");
-  host.className = "pane browse-page";
-  render(pageTpl(list), host);
-  appState.mainEl.replaceChildren(host);
-  requestAnimationFrame(() => host.querySelector<HTMLElement>(".browse-tile.selected")?.focus());
+  if (!browseHost || browseHost.parentElement !== appState.mainEl) {
+    browseHost = document.createElement("div");
+    browseHost.className = "pane browse-page";
+    appState.mainEl.replaceChildren(browseHost);
+  }
+  render(pageTpl(list), browseHost);
+  requestAnimationFrame(() => browseHost?.querySelector<HTMLElement>(".browse-tile.selected")?.focus());
 }
 
 function go(d: Destination): void {

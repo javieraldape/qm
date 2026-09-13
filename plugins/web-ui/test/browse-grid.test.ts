@@ -36,6 +36,8 @@ const browse = readFileSync(new URL("../src/browse.ts", import.meta.url), "utf8"
 test("the browse page is a 2-column grid over every destination, and escape returns home", () => {
   assert.match(browse, /const BROWSE_COLUMNS = 2;/);
   assert.match(browse, /className = "pane browse-page"/);
+  assert.match(browse, /browseHost\.parentElement !== appState\.mainEl/);
+  assert.match(browse, /render\(pageTpl\(list\), browseHost\)/);
   assert.match(readFileSync(new URL("../src/shell.ts", import.meta.url), "utf8"), /case "browse":\s*renderBrowse\(\)/);
   assert.match(readFileSync(new URL("../src/shell-state.ts", import.meta.url), "utf8"), /"browse",/);
   assert.match(
