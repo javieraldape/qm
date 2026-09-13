@@ -58,7 +58,7 @@ test("audit, metrics, and grant org admin are usable without Slack-shaped ids", 
   assert.match(html, /let auditFilter = "all"/);
   assert.match(html, /\["writes", "Writes"\]/);
   assert.match(html, /phases = \(d\.phases \|\| \[\]\)\.filter\(\(p\) => p\.count\)/);
-  assert.match(html, /id="grant-suggest"/);
+  assert.match(html, /grantDatalist\.id = "grant-suggest"/);
   assert.match(html, /Email or Slack user id required/);
   assert.doesNotMatch(html, /Principal id required/);
 });

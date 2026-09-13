@@ -9171,14 +9171,14 @@
         const baseModel = config.data.baseModel || config.data.baseModelDefault || "";
         const namedProvider = onboardingProviderForModel(baseModel);
         const namedStatus = onboardingModelStatuses.find((item) => item.provider === namedProvider);
-        const configured = onboardingModelStatuses.find((item) => item.configured);
+        const configuredProvider = onboardingModelStatuses.find((item) => item.configured);
         const harnessAuth = models.data.harnessAuth;
         const namedHarness = Boolean(harnessAuth && harnessAuth.provider === namedProvider);
         const namedReady = Boolean(namedStatus?.configured) || namedHarness;
-        const baseReady = namedReady || Boolean(configured) || Boolean(harnessAuth);
+        const baseReady = namedReady || Boolean(configuredProvider) || Boolean(harnessAuth);
         const baseProvider =
           (namedReady ? namedProvider : "") ||
-          configured?.provider ||
+          configuredProvider?.provider ||
           harnessAuth?.provider ||
           namedProvider ||
           onboardingModelStatuses[0]?.provider ||
