@@ -145,27 +145,34 @@ function drawFiles(loading = false): void {
   const status = filesNotice || (loading && !fileRows.length ? "Loading files…" : "");
   const scoped = Boolean(scopedSession.active);
   filesHost.classList.toggle("scoped-view", scoped);
+  const showSearch = Boolean(fileRows.length || filtered);
   render(
     html`
       ${scopedViewTopbar("files", drawFiles)}
       <div class="list-page-head">
         <h1 class="pane-title">Files</h1>
-        <label class="list-search"
-          >${icon(Search, 16)}<span class="sr-only">Search files</span
-          ><input
-            type="search"
-            aria-label="Search files"
-            placeholder="Search file names and types…"
-            .value=${filesQuery}
-            @input=${(e: Event) => {
-              filesQuery = (e.currentTarget as HTMLInputElement).value;
-              drawFiles();
-              void loadAllFiles();
-            }}
-        /></label>
+        ${
+          showSearch
+            ? html`<label class="list-search"
+                >${icon(Search, 16)}<span class="sr-only">Search files</span
+                ><input
+                  type="search"
+                  aria-label="Search files"
+                  placeholder="Search file names and types…"
+                  .value=${filesQuery}
+                  @input=${(e: Event) => {
+                    filesQuery = (e.currentTarget as HTMLInputElement).value;
+                    drawFiles();
+                    void loadAllFiles();
+                  }}
+              /></label>`
+            : nothing
+        }
       </div>
-      <div class="list-toolbar">
-        ${selectControl(
+      ${
+        showSearch
+          ? html`<div class="list-toolbar">
+              ${selectControl(
           "Ownership",
           filesOwnership,
           [
@@ -179,7 +186,7 @@ function drawFiles(loading = false): void {
             void loadAllFiles();
           },
         )}
-        ${selectControl(
+              ${selectControl(
           "Type",
           filesType,
           [
@@ -194,7 +201,9 @@ function drawFiles(loading = false): void {
             void loadAllFiles();
           },
         )}
-      </div>
+            </div>`
+          : nothing
+      }
       ${status ? html`<div class="status" aria-live="polite">${status}</div>` : nothing}
       <button
         class="file-drop ${filesDragActive ? "dragging" : ""}"
@@ -219,7 +228,11 @@ function drawFiles(loading = false): void {
                   </section>`,
               )}
             </div>`
-          : html`<div class="empty compact">${filtered ? "No files match these filters." : "No files yet."}</div>`
+          : filtered
+            ? html`<div class="empty compact">No files match these filters.</div>`
+            : html`<div class="empty compact empty-state-block">
+                <p class="empty-hint">Files you and QM share show up here.</p>
+              </div>`
       }
       ${filesNextCursor ? html`<div class="list-footer"><button class="btn" type="button" ?disabled=${filesLoadingMore} @click=${() => void loadMoreFiles()}>${filesLoadingMore ? "Loading…" : "Load more"}</button></div>` : nothing}
     `,

@@ -14,6 +14,7 @@ export interface Me {
 
 const VIEWS = [
   "chats",
+  "browse",
   "inbox",
   "contexts",
   "webhooks",

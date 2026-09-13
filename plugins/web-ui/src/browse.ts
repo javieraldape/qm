@@ -1,4 +1,4 @@
-import { html, nothing, render, type TemplateResult } from "lit";
+import { html, render, type TemplateResult } from "lit";
 import { Box, Brain, Clock, Files, Folder, KeyRound, Repeat, Rocket, ShieldUser, Webhook, type IconNode } from "lucide";
 import { deepLinkPath, isPlainLeftClick, UI_BASE } from "./deep-link";
 import { nextGridIndex } from "./grid-nav";
@@ -17,9 +17,7 @@ interface Destination {
 
 const BROWSE_COLUMNS = 2;
 
-const browseState = { open: false, sel: 0 };
-
-let host: HTMLDivElement | null = null;
+const browseState = { sel: 0 };
 
 function destinations(): Destination[] {
   const to = (view: View, glyph: IconNode, label: string, blurb: string): Destination => ({
@@ -52,36 +50,18 @@ function destinations(): Destination[] {
   return list;
 }
 
-export function openBrowse(): void {
-  if (browseState.open) return;
-  browseState.open = true;
-  const current = destinations().findIndex((d) => d.view === appState.currentView);
-  browseState.sel = current >= 0 ? current : 0;
-  draw();
-  requestAnimationFrame(() => host?.querySelector<HTMLElement>(".browse-tile.selected")?.focus());
-}
-
-export function closeBrowse(): void {
-  if (!browseState.open) return;
-  browseState.open = false;
-  draw();
-}
-
-function ensureHost(): HTMLDivElement {
-  if (!host) {
-    host = document.createElement("div");
-    host.className = "browse-host";
-    document.body.appendChild(host);
-  }
-  return host;
-}
-
-function draw(): void {
-  render(browseState.open ? paletteTpl() : nothing, ensureHost());
+export function renderBrowse(): void {
+  if (appState.currentView !== "browse" || !appState.mainEl) return;
+  const list = destinations();
+  if (browseState.sel >= list.length) browseState.sel = 0;
+  const host = document.createElement("div");
+  host.className = "pane browse-page";
+  render(pageTpl(list), host);
+  appState.mainEl.replaceChildren(host);
+  requestAnimationFrame(() => host.querySelector<HTMLElement>(".browse-tile.selected")?.focus());
 }
 
 function go(d: Destination): void {
-  closeBrowse();
   if (!d.view) {
     location.href = d.href;
     return;
@@ -90,19 +70,17 @@ function go(d: Destination): void {
   switchView(d.view);
 }
 
-function onGridKeydown(e: KeyboardEvent): void {
-  const list = destinations();
+function onGridKeydown(e: KeyboardEvent, list: Destination[]): void {
   if (e.key === "Escape") {
     e.preventDefault();
-    closeBrowse();
+    switchView("chats");
     return;
   }
   const next = nextGridIndex(browseState.sel, e.key, list.length, BROWSE_COLUMNS);
   if (next !== null) {
     e.preventDefault();
     browseState.sel = next;
-    draw();
-    requestAnimationFrame(() => host?.querySelector<HTMLElement>(".browse-tile.selected")?.focus());
+    renderBrowse();
     return;
   }
   if (e.key === "Enter" || e.key === " ") {
@@ -115,13 +93,13 @@ function onGridKeydown(e: KeyboardEvent): void {
 
 function tile(d: Destination, i: number): TemplateResult {
   return html`<a
-    class="browse-tile ${i === browseState.sel ? "selected" : ""} ${d.view === appState.currentView ? "current" : ""}"
+    class="browse-tile ${i === browseState.sel ? "selected" : ""}"
     href=${d.href}
     tabindex=${i === browseState.sel ? "0" : "-1"}
     @focus=${() => {
       if (browseState.sel === i) return;
       browseState.sel = i;
-      draw();
+      renderBrowse();
     }}
     @click=${(e: MouseEvent) => {
       if (!isPlainLeftClick(e)) return;
@@ -137,21 +115,21 @@ function tile(d: Destination, i: number): TemplateResult {
   </a>`;
 }
 
-function paletteTpl(): TemplateResult {
+function pageTpl(list: Destination[]): TemplateResult {
   return html`
-    <div
-      class="chat-search-overlay browse-overlay"
-      @pointerdown=${(e: PointerEvent) => {
-        if (e.target === e.currentTarget) closeBrowse();
-      }}
-    >
-      <div class="chat-search-palette browse-palette" role="dialog" aria-label="Browse" @keydown=${onGridKeydown}>
-        <div class="chat-search-inputrow browse-head">
-          <span class="browse-title">Browse</span>
-          <span class="chat-search-kbd">esc</span>
-        </div>
-        <div class="browse-grid" role="group" aria-label="Destinations">${destinations().map(tile)}</div>
+    <div class="list-page-head">
+      <div>
+        <h1 class="pane-title">Browse</h1>
+        <div class="pane-subtitle">Projects, files, automations, and everything else QM keeps for you.</div>
       </div>
+    </div>
+    <div
+      class="browse-grid"
+      role="group"
+      aria-label="Destinations"
+      @keydown=${(e: KeyboardEvent) => onGridKeydown(e, list)}
+    >
+      ${list.map(tile)}
     </div>
   `;
 }

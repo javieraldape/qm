@@ -25,6 +25,8 @@ test("non-chat views are path-addressed regardless of any session", () => {
   assert.equal(deepLinkPath("", "files", "abc"), "/files");
   assert.equal(deepLinkPath("", "keychain", null), "/keychain");
   assert.equal(deepLinkPath("", "deploys", null), "/apps");
+  assert.equal(deepLinkPath("", "browse", null), "/browse");
+  assert.deepEqual(parseDeepLink("", "/browse", ""), { view: "browse", session: null, item: null });
 });
 
 test("the contexts view carries its open scope", () => {

@@ -79,7 +79,7 @@ import { openWebhookById, renderWebhooksPage, resetActiveWebhook, routeWebhooksH
 import { renderFiles } from "./files";
 import { setScopedSession } from "./session-scope";
 import { openChatSearch } from "./search";
-import { closeBrowse, openBrowse } from "./browse";
+import { renderBrowse } from "./browse";
 import { attachTooltip, hideTooltip, tip } from "./tooltip";
 import { clearConnectorNotice, noteConnectorResult, renderConnectors, resetKeychainState } from "./connectors";
 import { renderDeploys } from "./deploys";
@@ -123,6 +123,11 @@ function signOutFromMenu(): void {
   userMenuOpen = false;
   renderSidebarFooter();
   void signOut();
+}
+
+function openSettingsFromMenu(): void {
+  userMenuOpen = false;
+  switchView("settings");
 }
 
 let authMode: AuthMode = "portal";
@@ -226,7 +231,6 @@ export async function signOut(): Promise<void> {
     }
   }
   appState.me = null;
-  closeBrowse();
   resetInboxState();
   clearAllDrafts();
   exitSplitIfActive();
@@ -557,6 +561,16 @@ export function renderSidebarFooter(): void {
         ${
           userMenuOpen
             ? html`<div class="session-menu-popover user-menu-popover" role="menu">
+                <button class="session-menu-option" type="button" role="menuitem" @click=${openSettingsFromMenu}>
+                  ${icon(Settings, 15)}<span>Settings</span>
+                </button>
+                ${
+                  can("admin")
+                    ? html`<a class="session-menu-option" href=${ADMIN_HOME_URL} role="menuitem">
+                        ${icon(ShieldUser, 15)}<span>Admin</span>
+                      </a>`
+                    : nothing
+                }
                 ${appState.me?.individualModelAuth ? html`<button class="session-menu-option" type="button" role="menuitem" @click=${openModelConnectManager}>Manage AI account</button>` : nothing}
                 <button class="session-menu-option" type="button" role="menuitem" @click=${signOutFromMenu}>
                   ${icon(LogOut, 15)}<span>Sign out</span>
@@ -567,12 +581,17 @@ export function renderSidebarFooter(): void {
       </div>
       ${
         can("admin")
-          ? html`<a class="icon-btn subtle" href=${ADMIN_HOME_URL} aria-label="Admin" ${tip("Admin")}>
+          ? html`<a class="icon-btn subtle footer-rail-btn" href=${ADMIN_HOME_URL} aria-label="Admin" ${tip("Admin")}>
               ${icon(ShieldUser, 17)}
             </a>`
           : nothing
       }
-      <button class="icon-btn subtle" aria-label="Settings" ${tip("Settings")} @click=${() => switchView("settings")}>
+      <button
+        class="icon-btn subtle footer-rail-btn"
+        aria-label="Settings"
+        ${tip("Settings")}
+        @click=${() => switchView("settings")}
+      >
         ${icon(Settings, 17)}
       </button>
     `,
@@ -616,10 +635,7 @@ export function renderSidebarTop(): void {
           hideTooltip();
           openChatSearch();
         })}
-        ${actionRow(ICON.browse, "Browse", () => {
-          hideTooltip();
-          openBrowse();
-        })}
+        ${navRow("browse", ICON.browse, "Browse")}
       </nav>
       <div class="nav new-chat-nav">
         ${actionRow(ICON.newChat, newChatLabel, () => {
@@ -722,6 +738,9 @@ export function switchView(v: View): void {
     case "settings":
       renderSettings();
       break;
+    case "browse":
+      renderBrowse();
+      break;
   }
 }
 
@@ -786,6 +805,9 @@ function refreshActiveView(v: View): void {
       break;
     case "settings":
       renderSettings();
+      break;
+    case "browse":
+      renderBrowse();
       break;
   }
 }

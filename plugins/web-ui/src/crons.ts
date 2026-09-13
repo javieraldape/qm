@@ -7,7 +7,7 @@ import { listBackLink, listPageTpl } from "./list-page";
 import { contextsState, ensureContexts, scopeChip } from "./contexts";
 import { scopedSession, scopedViewTopbar } from "./session-scope";
 import { appState } from "./shell";
-import { startNewChat } from "./sessions";
+import { startNewChat, startNewChatInLastScope } from "./sessions";
 import { deepLinkPath, isPlainLeftClick, UI_BASE } from "./deep-link";
 import {
   cronNextFire,
@@ -262,9 +262,15 @@ function drawCronsPage(): void {
     if (!archived.length) rows.push(cronEmptyRow("Nothing archived."));
   }
   let empty = "No crons yet.";
+  let emptyHint: string | undefined;
+  let emptyAction: { label: string; onClick: () => void } | undefined;
   if (cronsNotice) empty = cronsNotice;
   else if (cronsLoading && cronList.length === 0 && visibleCronList.length === 0) empty = "Loading crons…";
   else if (cronsScope) empty = "No crons in this context.";
+  else {
+    emptyHint = "Ask QM to run something on a schedule.";
+    emptyAction = { label: "New chat", onClick: () => startNewChatInLastScope() };
+  }
   const scoped = Boolean(scopedSession.active);
   cronsPageHost.classList.toggle("scoped-view", scoped);
   render(
@@ -281,6 +287,8 @@ function drawCronsPage(): void {
       },
       rows,
       empty,
+      emptyHint,
+      emptyAction,
     })}`,
     cronsPageHost,
   );

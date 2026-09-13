@@ -68,7 +68,7 @@ test("the sidebar's quick actions share the navrow treatment", () => {
 test("the quick nav is home, search, browse; create sits under the divider with the sessions it starts", () => {
   assert.match(
     shell,
-    /<nav class="nav quick-nav"[\s\S]*?navRow\("chats", ICON\.home, "Home"\)[\s\S]*?actionRow\(Search, "Search"[\s\S]*?actionRow\(ICON\.browse, "Browse"[\s\S]*?<\/nav>/,
+    /<nav class="nav quick-nav"[\s\S]*?navRow\("chats", ICON\.home, "Home"\)[\s\S]*?actionRow\(Search, "Search"[\s\S]*?navRow\("browse", ICON\.browse, "Browse"[\s\S]*?<\/nav>/,
   );
   assert.doesNotMatch(
     shell,
