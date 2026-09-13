@@ -173,34 +173,34 @@ function drawFiles(loading = false): void {
         showSearch
           ? html`<div class="list-toolbar">
               ${selectControl(
-          "Ownership",
-          filesOwnership,
-          [
-            ["all", "All files"],
-            ["owned", "Yours"],
-            ["shared", "Shared"],
-          ],
-          (v) => {
-            filesOwnership = v as typeof filesOwnership;
-            drawFiles();
-            void loadAllFiles();
-          },
-        )}
+                "Ownership",
+                filesOwnership,
+                [
+                  ["all", "All files"],
+                  ["owned", "Yours"],
+                  ["shared", "Shared"],
+                ],
+                (v) => {
+                  filesOwnership = v as typeof filesOwnership;
+                  drawFiles();
+                  void loadAllFiles();
+                },
+              )}
               ${selectControl(
-          "Type",
-          filesType,
-          [
-            ["all", "All types"],
-            ["image", "Images"],
-            ["document", "Documents"],
-            ["other", "Other"],
-          ],
-          (v) => {
-            filesType = v as typeof filesType;
-            drawFiles();
-            void loadAllFiles();
-          },
-        )}
+                "Type",
+                filesType,
+                [
+                  ["all", "All types"],
+                  ["image", "Images"],
+                  ["document", "Documents"],
+                  ["other", "Other"],
+                ],
+                (v) => {
+                  filesType = v as typeof filesType;
+                  drawFiles();
+                  void loadAllFiles();
+                },
+              )}
             </div>`
           : nothing
       }
