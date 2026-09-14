@@ -11,7 +11,7 @@ const css = readFileSync(new URL("../src/shell.css", import.meta.url), "utf8");
 const draftReview = readFileSync(new URL("../src/draft-review.ts", import.meta.url), "utf8");
 
 test("inbox is a first-class view with a draggable sidebar entry", () => {
-  assert.match(shellState, /"chats",\s*"browse",\s*"inbox",\s*"contexts"/);
+  assert.match(shellState, /"chats",\s*"inbox",\s*"contexts"/);
   assert.match(shell, /case "inbox":\s*void renderInbox\(\);/);
   assert.match(shell, /data-view="inbox"/);
   assert.match(shell, /application\/x-webui-inbox/);

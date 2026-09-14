@@ -8,7 +8,6 @@ import { listBackLink, listPageTpl } from "./list-page";
 import { contextsState, ensureContexts, scopeChip } from "./contexts";
 import { scopedSession, scopedViewTopbar } from "./session-scope";
 import { appState } from "./shell";
-import { startNewChatInLastScope } from "./sessions";
 import { focusDialogCancel, restoreDialogFocus, trapDialogFocus } from "./dialog-focus";
 import {
   withDeploymentDetailNotice,
@@ -189,15 +188,11 @@ function drawDeploysPage(): void {
   );
   let empty = deploymentTabEmptyMessage(deployTab);
   let emptyHint: string | undefined;
-  let emptyAction: { label: string; onClick: () => void } | undefined;
   if (!deployList.length && deployNotices.list) empty = deployNotices.list;
   else if (deployLoading && deployList.length === 0) empty = "Loading apps…";
   else if (deployQuery && allForTab.length) empty = "No apps match your search.";
   else if (deployScope) empty = "No apps in this context.";
-  else if (!deployList.length) {
-    emptyHint = "Ask QM to ship a small app or site from chat.";
-    emptyAction = { label: "New chat", onClick: () => startNewChatInLastScope() };
-  }
+  else if (!deployList.length) emptyHint = "Ask QM to ship a small app or site from chat.";
   const content = deployList.length
     ? [
         deployTabs(),
@@ -227,7 +222,6 @@ function drawDeploysPage(): void {
         rows: content,
         empty,
         emptyHint,
-        emptyAction,
       })}
       ${archiveCandidate ? archiveDialog(archiveCandidate) : nothing} ${deployToast ? undoToast(deployToast) : nothing}
     `,

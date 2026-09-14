@@ -19,7 +19,6 @@ test("chat and non-chat views have useful fallbacks", () => {
   assert.equal(documentTitle("contexts"), `Projects · ${PRODUCT_TITLE}`);
   assert.equal(documentTitle("files"), `Files · ${PRODUCT_TITLE}`);
   assert.equal(documentTitle("keychain"), `Keychain · ${PRODUCT_TITLE}`);
-  assert.equal(documentTitle("browse"), `Browse · ${PRODUCT_TITLE}`);
 });
 
 test("active session selection follows conversation switches and title updates", () => {

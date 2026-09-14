@@ -33,19 +33,13 @@ test("an odd row count keeps the last row reachable and never overshoots it", ()
 
 const browse = readFileSync(new URL("../src/browse.ts", import.meta.url), "utf8");
 
-test("the browse page is a 2-column grid over every destination, and escape returns home", () => {
+test("the browse palette is a 2-column grid over every destination, escape-dismissable", () => {
   assert.match(browse, /const BROWSE_COLUMNS = 2;/);
-  assert.match(browse, /className = "pane browse-page"/);
-  assert.match(browse, /browseHost\.parentElement !== appState\.mainEl/);
-  assert.match(browse, /render\(pageTpl\(list\), browseHost\)/);
-  assert.match(readFileSync(new URL("../src/shell.ts", import.meta.url), "utf8"), /case "browse":\s*renderBrowse\(\)/);
-  assert.match(readFileSync(new URL("../src/shell-state.ts", import.meta.url), "utf8"), /"browse",/);
   assert.match(
     readFileSync(new URL("../src/shell.css", import.meta.url), "utf8"),
     /\.browse-grid \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/,
   );
-  assert.match(browse, /e\.key === "Escape"[\s\S]{0,80}switchView\("chats"\)/);
-  assert.doesNotMatch(browse, /browse-overlay|browse-palette|role="dialog"/);
+  assert.match(browse, /e\.key === "Escape"[\s\S]{0,80}closeBrowse\(\)/);
   for (const label of ["Projects", "Files", "Crons", "Keychain", "Apps", "Memory", "Skills", "Admin"]) {
     assert.match(browse, new RegExp(`"${label}"`));
   }

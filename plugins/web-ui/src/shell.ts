@@ -79,7 +79,7 @@ import { openWebhookById, renderWebhooksPage, resetActiveWebhook, routeWebhooksH
 import { renderFiles } from "./files";
 import { setScopedSession } from "./session-scope";
 import { openChatSearch } from "./search";
-import { renderBrowse } from "./browse";
+import { closeBrowse, openBrowse } from "./browse";
 import { attachTooltip, hideTooltip, tip } from "./tooltip";
 import { clearConnectorNotice, noteConnectorResult, renderConnectors, resetKeychainState } from "./connectors";
 import { renderDeploys } from "./deploys";
@@ -231,6 +231,7 @@ export async function signOut(): Promise<void> {
     }
   }
   appState.me = null;
+  closeBrowse();
   resetInboxState();
   clearAllDrafts();
   exitSplitIfActive();
@@ -635,7 +636,10 @@ export function renderSidebarTop(): void {
           hideTooltip();
           openChatSearch();
         })}
-        ${navRow("browse", ICON.browse, "Browse")}
+        ${actionRow(ICON.browse, "Browse", () => {
+          hideTooltip();
+          openBrowse();
+        })}
       </nav>
       <div class="nav new-chat-nav">
         ${actionRow(ICON.newChat, newChatLabel, () => {
@@ -738,9 +742,6 @@ export function switchView(v: View): void {
     case "settings":
       renderSettings();
       break;
-    case "browse":
-      renderBrowse();
-      break;
   }
 }
 
@@ -805,9 +806,6 @@ function refreshActiveView(v: View): void {
       break;
     case "settings":
       renderSettings();
-      break;
-    case "browse":
-      renderBrowse();
       break;
   }
 }

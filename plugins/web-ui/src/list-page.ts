@@ -28,23 +28,15 @@ export interface ListPageOpts {
   rows: TemplateResult[];
   empty: string | TemplateResult;
   emptyHint?: string;
-  emptyAction?: { label: string; onClick: () => void };
 }
 
 function emptyBlock(o: ListPageOpts): TemplateResult {
-  if (typeof o.empty !== "string" || (!o.emptyHint && !o.emptyAction)) {
+  if (typeof o.empty !== "string" || !o.emptyHint) {
     return html`<div class="empty compact">${o.empty}</div>`;
   }
   return html`<div class="empty compact empty-state-block">
     <p class="empty-title">${o.empty}</p>
-    ${o.emptyHint ? html`<p class="empty-hint">${o.emptyHint}</p>` : nothing}
-    ${
-      o.emptyAction
-        ? html`<button class="btn primary" type="button" @click=${o.emptyAction.onClick}>
-            ${o.emptyAction.label}
-          </button>`
-        : nothing
-    }
+    <p class="empty-hint">${o.emptyHint}</p>
   </div>`;
 }
 

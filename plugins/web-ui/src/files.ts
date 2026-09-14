@@ -1,4 +1,4 @@
-import { html, nothing, render } from "lit";
+import { html, nothing, render, type TemplateResult } from "lit";
 import {
   File,
   FileArchive,
@@ -146,6 +146,24 @@ function drawFiles(loading = false): void {
   const scoped = Boolean(scopedSession.active);
   filesHost.classList.toggle("scoped-view", scoped);
   const showSearch = Boolean(fileRows.length || filtered);
+  let filesBody: TemplateResult;
+  if (visible.length) {
+    filesBody = html`<div class="file-groups">
+      ${groups.map(
+        (group) =>
+          html`<section class="file-scope-group">
+            <h2>${scopeTitle(group.scope)}</h2>
+            ${listRowsTpl(group.files.map(fileRow), "file-list")}
+          </section>`,
+      )}
+    </div>`;
+  } else if (filtered) {
+    filesBody = html`<div class="empty compact">No files match these filters.</div>`;
+  } else {
+    filesBody = html`<div class="empty compact empty-state-block">
+      <p class="empty-hint">Files you and QM share show up here.</p>
+    </div>`;
+  }
   render(
     html`
       ${scopedViewTopbar("files", drawFiles)}
@@ -217,23 +235,7 @@ function drawFiles(loading = false): void {
       >
         ${icon(Upload, 16)}<span>${dropLabel}</span>
       </button>
-      ${
-        visible.length
-          ? html`<div class="file-groups">
-              ${groups.map(
-                (group) =>
-                  html`<section class="file-scope-group">
-                    <h2>${scopeTitle(group.scope)}</h2>
-                    ${listRowsTpl(group.files.map(fileRow), "file-list")}
-                  </section>`,
-              )}
-            </div>`
-          : filtered
-            ? html`<div class="empty compact">No files match these filters.</div>`
-            : html`<div class="empty compact empty-state-block">
-                <p class="empty-hint">Files you and QM share show up here.</p>
-              </div>`
-      }
+      ${filesBody}
       ${filesNextCursor ? html`<div class="list-footer"><button class="btn" type="button" ?disabled=${filesLoadingMore} @click=${() => void loadMoreFiles()}>${filesLoadingMore ? "Loading…" : "Load more"}</button></div>` : nothing}
     `,
     filesHost,

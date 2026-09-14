@@ -7726,20 +7726,29 @@ h3.ambient-field-label {
   color: var(--muted-foreground);
 }
 
+.browse-palette {
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(560px, calc(100vh - 96px));
+}
+.browse-head {
+  justify-content: space-between;
+}
+.browse-title {
+  font-size: 14px;
+  color: var(--foreground);
+}
 .browse-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  width: 100%;
-  max-width: 960px;
-  margin: 8px auto 0;
+  gap: 6px;
+  padding: 16px;
+  overflow-y: auto;
 }
 .browse-tile {
   display: flex;
   align-items: center;
   gap: 11px;
   padding: 12px 13px;
-  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   text-decoration: none;
   color: var(--foreground);
@@ -7753,10 +7762,16 @@ h3.ambient-field-label {
   outline: none;
   background: var(--secondary);
 }
+.browse-tile.current .browse-tile-label {
+  font-weight: 600;
+}
 .browse-tile-icon {
   display: inline-flex;
   flex-shrink: 0;
   color: var(--muted-foreground);
+}
+.browse-tile.current .browse-tile-icon {
+  color: var(--foreground);
 }
 .browse-tile-text {
   display: flex;
