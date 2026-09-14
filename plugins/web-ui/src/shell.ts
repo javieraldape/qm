@@ -125,6 +125,11 @@ function signOutFromMenu(): void {
   void signOut();
 }
 
+function openSettingsFromMenu(): void {
+  userMenuOpen = false;
+  switchView("settings");
+}
+
 let authMode: AuthMode = "portal";
 let shellMounted = false;
 
@@ -557,6 +562,16 @@ export function renderSidebarFooter(): void {
         ${
           userMenuOpen
             ? html`<div class="session-menu-popover user-menu-popover" role="menu">
+                <button class="session-menu-option" type="button" role="menuitem" @click=${openSettingsFromMenu}>
+                  ${icon(Settings, 15)}<span>Settings</span>
+                </button>
+                ${
+                  can("admin")
+                    ? html`<a class="session-menu-option" href=${ADMIN_HOME_URL} role="menuitem">
+                        ${icon(ShieldUser, 15)}<span>Admin</span>
+                      </a>`
+                    : nothing
+                }
                 ${appState.me?.individualModelAuth ? html`<button class="session-menu-option" type="button" role="menuitem" @click=${openModelConnectManager}>Manage AI account</button>` : nothing}
                 <button class="session-menu-option" type="button" role="menuitem" @click=${signOutFromMenu}>
                   ${icon(LogOut, 15)}<span>Sign out</span>
@@ -567,12 +582,17 @@ export function renderSidebarFooter(): void {
       </div>
       ${
         can("admin")
-          ? html`<a class="icon-btn subtle" href=${ADMIN_HOME_URL} aria-label="Admin" ${tip("Admin")}>
+          ? html`<a class="icon-btn subtle footer-rail-btn" href=${ADMIN_HOME_URL} aria-label="Admin" ${tip("Admin")}>
               ${icon(ShieldUser, 17)}
             </a>`
           : nothing
       }
-      <button class="icon-btn subtle" aria-label="Settings" ${tip("Settings")} @click=${() => switchView("settings")}>
+      <button
+        class="icon-btn subtle footer-rail-btn"
+        aria-label="Settings"
+        ${tip("Settings")}
+        @click=${() => switchView("settings")}
+      >
         ${icon(Settings, 17)}
       </button>
     `,
@@ -685,7 +705,7 @@ export function switchView(v: View): void {
   resetActiveDetail(v);
   switch (v) {
     case "chats":
-      if (splitState.active) drawCanvas();
+      if (mountRestoredCanvas()) drawCanvas();
       else void renderChatsPage();
       renderList();
       break;
@@ -1014,7 +1034,7 @@ export async function boot(): Promise<void> {
   const viewIntent = isView(wanted) && canView(wanted) && wanted !== "chats";
 
   const bareEntry = !viewIntent && !wantedSession && wanted !== "app-edit" && !connectedProvider;
-  if (bareEntry && !restoredCanvasNeedsSessionList()) mountRestoredCanvas();
+  if (bareEntry && !restoredCanvasNeedsSessionList()) mountRestoredCanvas(true);
 
   const sessions = refreshSessions({ showLoading: true });
 
